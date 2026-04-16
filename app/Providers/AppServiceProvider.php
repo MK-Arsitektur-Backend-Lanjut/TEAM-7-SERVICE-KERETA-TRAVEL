@@ -12,8 +12,8 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(
-            \App\Interfaces\TrainRepositoryInterface::class,
-            \App\Repositories\TrainRepository::class
+            \App\Interfaces\ScheduleRepositoryInterface::class, 
+            \App\Repositories\ScheduleRepository::class
         );
     }
 
