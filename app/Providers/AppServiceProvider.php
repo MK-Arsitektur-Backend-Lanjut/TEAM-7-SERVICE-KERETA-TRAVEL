@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Interfaces\RouteRepositoryInterface;
+use App\Interfaces\StationRepositoryInterface;
+use App\Interfaces\TrainRepositoryInterface;
+use App\Repositories\RouteRepository;
+use App\Repositories\StationRepository;
+use App\Repositories\TrainRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -12,8 +18,18 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(
-            \App\Interfaces\TrainRepositoryInterface::class,
-            \App\Repositories\TrainRepository::class
+            TrainRepositoryInterface::class,
+            TrainRepository::class
+        );
+
+        $this->app->bind(
+            StationRepositoryInterface::class,
+            StationRepository::class
+        );
+
+        $this->app->bind(
+            RouteRepositoryInterface::class,
+            RouteRepository::class
         );
 
         $this->app->bind(
