@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('train_id')->constrained('trains')->cascadeOnDelete();
             $table->foreignId('origin_station_id')->constrained('stations')->cascadeOnDelete();
             $table->foreignId('destination_station_id')->constrained('stations')->cascadeOnDelete();
-            $table->time('departure_time');
-            $table->time('arrival_time');
+            $table->dateTime('departure_time');
+            $table->dateTime('arrival_time');
             $table->unsignedInteger('duration_minutes');
             $table->decimal('distance_km', 8, 2);
             $table->decimal('price', 12, 2);

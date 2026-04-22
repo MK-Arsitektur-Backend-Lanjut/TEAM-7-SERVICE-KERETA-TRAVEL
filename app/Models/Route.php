@@ -20,6 +20,8 @@ class Route extends Model
     ];
 
     protected $casts = [
+        'departure_time' => 'datetime',
+        'arrival_time' => 'datetime',
         'is_active' => 'boolean',
         'duration_minutes' => 'integer',
         'distance_km' => 'decimal:2',

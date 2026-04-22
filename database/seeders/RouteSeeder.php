@@ -38,16 +38,16 @@ class RouteSeeder extends Seeder
                     $destinationId = $stationIds[array_rand($stationIds)];
                 }
 
-                $departureTime = Carbon::createFromTime(rand(0, 23), rand(0, 59));
+                $departureTime = now()->addDays(rand(1, 30))->setTime(rand(0, 23), rand(0, 59));
                 $duration = rand(60, 720); // 1-12 hours
                 $arrivalTime = (clone $departureTime)->addMinutes($duration);
-
+ 
                 $data[] = [
                     'train_id' => $trainIds[array_rand($trainIds)],
                     'origin_station_id' => $originId,
                     'destination_station_id' => $destinationId,
-                    'departure_time' => $departureTime->format('H:i:s'),
-                    'arrival_time' => $arrivalTime->format('H:i:s'),
+                    'departure_time' => $departureTime->format('Y-m-d H:i:s'),
+                    'arrival_time' => $arrivalTime->format('Y-m-d H:i:s'),
                     'duration_minutes' => $duration,
                     'distance_km' => rand(50, 1000),
                     'price' => rand(50, 800) * 1000,
