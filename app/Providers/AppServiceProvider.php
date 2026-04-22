@@ -3,9 +3,11 @@
 namespace App\Providers;
 
 use App\Interfaces\RouteRepositoryInterface;
+use App\Interfaces\ScheduleRepositoryInterface;
 use App\Interfaces\StationRepositoryInterface;
 use App\Interfaces\TrainRepositoryInterface;
 use App\Repositories\RouteRepository;
+use App\Repositories\ScheduleRepository;
 use App\Repositories\StationRepository;
 use App\Repositories\TrainRepository;
 use Illuminate\Support\ServiceProvider;
@@ -30,6 +32,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             RouteRepositoryInterface::class,
             RouteRepository::class
+        );
+
+        $this->app->bind(
+            ScheduleRepositoryInterface::class,
+            ScheduleRepository::class
         );
 
         $this->app->bind(

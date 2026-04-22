@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RouteController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\StationController;
 use App\Http\Controllers\TrainController;
 use Illuminate\Support\Facades\Route;
@@ -46,4 +47,8 @@ Route::prefix('v1')->group(function () {
     Route::get('routes/{route}', [RouteController::class, 'show']);
     Route::put('routes/{route}', [RouteController::class, 'update']);
     Route::delete('routes/{route}', [RouteController::class, 'destroy']);
+
+    // Schedules (Modul 2: Search & Schedule)
+    Route::get('schedules', [ScheduleController::class, 'index']);
+    Route::get('schedules/{id}/seats', [ScheduleController::class, 'checkSeats'])->whereNumber('id');
 });
