@@ -13,6 +13,7 @@ class BookingRepository implements BookingRepositoryInterface
     {
         return Booking::query()
             ->where('user_id', $userId)
+            ->with('rute')  // Eager load rute data
             ->orderByDesc('id')
             ->paginate($perPage);
     }
@@ -22,17 +23,16 @@ class BookingRepository implements BookingRepositoryInterface
         $passengers = (int) ($data['passengers'] ?? 1);
         $price = (int) ($data['price'] ?? 0);
 
+        // Data origin, destination, arrival_at akan diambil dari rute via accessor
         $payload = [
             'user_id' => $userId,
             'booking_code' => $data['booking_code'] ?? $this->generateBookingCode(),
-            'origin' => $data['origin'],
-            'destination' => $data['destination'],
-            'schedule_id' => (int) $data['schedule_id'],
-            'arrival_at' => $data['arrival_at'] ?? null,
+            'rute_id' => (int) $data['rute_id'],
             'passengers' => $passengers,
             'price' => $price,
             'total_price' => (int) ($data['total_price'] ?? ($price * $passengers)),
             'status' => $data['status'] ?? 'confirmed',
+            'payment_status' => $data['payment_status'] ?? 'pending',
         ];
 
         return Booking::create($payload);
@@ -43,6 +43,7 @@ class BookingRepository implements BookingRepositoryInterface
         return Booking::query()
             ->where('id', $bookingId)
             ->where('user_id', $userId)
+            ->with('rute')  // Eager load rute data
             ->first();
     }
 

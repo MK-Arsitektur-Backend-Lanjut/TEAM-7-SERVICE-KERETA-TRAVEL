@@ -26,20 +26,16 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'origin' => ['required', 'string', 'max:255'],
-            'destination' => ['required', 'string', 'max:255'],
-            'schedule_id' => ['required', 'integer', 'min:1'],
-            'arrival_at' => ['nullable', 'date'],
-            'passengers' => ['sometimes', 'integer', 'min:1', 'max:10'],
+            'rute_id' => ['required', 'integer', 'exists:rute,id'],  // Validasi FK ke tabel rute
+            'passengers' => ['required', 'integer', 'min:1', 'max:10'],
             'price' => ['sometimes', 'integer', 'min:0'],
             'total_price' => ['sometimes', 'integer', 'min:0'],
-            'status' => ['sometimes', 'string', 'max:50'],
         ]);
 
         $booking = $this->bookings->createForUser((int) $request->user()->id, $data);
 
         return response()->json([
-            'booking' => $booking,
+            'booking' => $booking->load('rute'),  // Load relasi rute
         ], 201);
     }
 
@@ -52,7 +48,7 @@ class BookingController extends Controller
         }
 
         return response()->json([
-            'booking' => $booking,
+            'booking' => $booking->load('rute'),  // Load relasi rute
         ]);
     }
 }
