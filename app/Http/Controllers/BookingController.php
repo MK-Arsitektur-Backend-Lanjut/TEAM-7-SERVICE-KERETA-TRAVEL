@@ -26,11 +26,14 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'rute_id' => ['required', 'integer', 'exists:rute,id'],  // Validasi FK ke tabel rute
+            'rute_id' => ['required', 'integer', 'exists:routes,id'],
             'passengers' => ['required', 'integer', 'min:1', 'max:10'],
-            'price' => ['sometimes', 'integer', 'min:0'],
-            'total_price' => ['sometimes', 'integer', 'min:0'],
         ]);
+
+        // Set default values otomatis (user tidak perlu input)
+        $data['status'] = 'pending';
+        $data['payment_status'] = 'pending';
+        $data['booking_code'] = 'BK' . strtoupper(uniqid());
 
         $booking = $this->bookings->createForUser((int) $request->user()->id, $data);
 

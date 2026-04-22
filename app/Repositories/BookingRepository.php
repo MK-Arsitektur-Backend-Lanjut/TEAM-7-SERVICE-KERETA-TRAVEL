@@ -21,17 +21,21 @@ class BookingRepository implements BookingRepositoryInterface
     public function createForUser(int $userId, array $data): Booking
     {
         $passengers = (int) ($data['passengers'] ?? 1);
-        $price = (int) ($data['price'] ?? 0);
+        
+        // Get route to retrieve price automatically
+        $route = \App\Models\Route::find($data['rute_id']);
+        $price = (int) ($route?->price ?? 0);
+        $totalPrice = $price * $passengers;
 
-        // Data origin, destination, arrival_at akan diambil dari rute via accessor
+        // Payload dengan value otomatis dari route
         $payload = [
             'user_id' => $userId,
             'booking_code' => $data['booking_code'] ?? $this->generateBookingCode(),
             'rute_id' => (int) $data['rute_id'],
             'passengers' => $passengers,
             'price' => $price,
-            'total_price' => (int) ($data['total_price'] ?? ($price * $passengers)),
-            'status' => $data['status'] ?? 'confirmed',
+            'total_price' => $totalPrice,
+            'status' => $data['status'] ?? 'pending',
             'payment_status' => $data['payment_status'] ?? 'pending',
         ];
 
