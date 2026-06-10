@@ -3,19 +3,17 @@
 namespace App\Repositories;
 
 use App\Interfaces\ScheduleRepositoryInterface;
-use App\Models\Booking;
-use App\Models\Route;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ScheduleRepository implements ScheduleRepositoryInterface
 {
     /**
      * Cari jadwal kereta berdasarkan filter.
-     * Menggunakan tabel routes karena departure_time & arrival_time sudah ada di sana.
+     * Menggunakan tabel schedules untuk indexing optimal.
      */
     public function search(array $filters): LengthAwarePaginator
     {
-        $query = Route::with(['train', 'originStation', 'destinationStation'])
+        $query = \App\Models\Schedule::with(['train', 'originStation', 'destinationStation', 'route'])
             ->where('is_active', true);
 
         // Filter stasiun asal & tujuan
@@ -29,7 +27,7 @@ class ScheduleRepository implements ScheduleRepositoryInterface
 
         // Filter tanggal keberangkatan
         if (!empty($filters['date'])) {
-            $query->whereDate('departure_time', $filters['date']);
+            $query->where('departure_date', $filters['date']);
         }
 
         // Filter rentang JAM keberangkatan (contoh: pagi 06:00-12:00)
@@ -55,18 +53,7 @@ class ScheduleRepository implements ScheduleRepositoryInterface
 
         // Filter hanya jadwal yang masih ada kursi
         if (!empty($filters['only_available']) && filter_var($filters['only_available'], FILTER_VALIDATE_BOOLEAN)) {
-            $query->whereHas('train', function ($q) {
-                // kursi tersedia = total_seats kereta > jumlah passengers yang sudah booking
-                $q->whereRaw(
-                    'total_seats > (
-                        SELECT COALESCE(SUM(b.passengers), 0)
-                        FROM bookings b
-                        WHERE b.rute_id = routes.id
-                          AND b.status IN (?, ?)
-                    )',
-                    [Booking::STATUS_PENDING, Booking::STATUS_CONFIRMED]
-                );
-            });
+            $query->where('available_seats', '>', 0);
         }
 
         // Sorting
@@ -79,54 +66,29 @@ class ScheduleRepository implements ScheduleRepositoryInterface
 
         $perPage = min((int) ($filters['per_page'] ?? 15), 100);
 
-        $results = $query->paginate($perPage);
-
-        // Hitung kursi terpakai untuk semua route di halaman ini sekaligus (1 query)
-        $bookedMap = Booking::whereIn('rute_id', $results->pluck('id'))
-            ->whereIn('status', [Booking::STATUS_PENDING, Booking::STATUS_CONFIRMED])
-            ->groupBy('rute_id')
-            ->selectRaw('rute_id, COALESCE(SUM(passengers), 0) as total_booked')
-            ->pluck('total_booked', 'rute_id');
-
-        // Tambahkan available_seats & is_available ke setiap item
-        $results->getCollection()->transform(function ($route) use ($bookedMap) {
-            $booked    = (int) ($bookedMap[$route->id] ?? 0);
-            $total     = $route->train->total_seats;
-            $available = max(0, $total - $booked);
-
-            $route->available_seats = $available;
-            $route->is_available    = $available > 0;
-
-            return $route;
-        });
-
-        return $results;
+        return $query->paginate($perPage);
     }
 
     /**
-     * Cek ketersediaan kursi untuk satu jadwal (route).
-     * Kursi tersedia = total_seats kereta - jumlah passengers yang sudah booking (pending/confirmed).
+     * Cek ketersediaan kursi untuk satu jadwal (schedule).
+     * Kursi tersedia sudah disimpan di schedules.available_seats.
      */
-    public function checkSeats(int $routeId): array
+    public function checkSeats(int $scheduleId): array
     {
-        $route = Route::with('train')->findOrFail($routeId);
+        $schedule = \App\Models\Schedule::with('train')->findOrFail($scheduleId);
 
-        $bookedSeats = Booking::where('rute_id', $routeId)
-            ->whereIn('status', [Booking::STATUS_PENDING, Booking::STATUS_CONFIRMED])
-            ->sum('passengers');
-
-        $totalSeats     = $route->train->total_seats;
-        $availableSeats = max(0, $totalSeats - (int) $bookedSeats);
+        $bookedSeats = $schedule->total_seats - $schedule->available_seats;
 
         return [
-            'route_id'        => $routeId,
-            'train'           => $route->train->name,
-            'departure_time'  => $route->departure_time,
-            'arrival_time'    => $route->arrival_time,
-            'total_seats'     => $totalSeats,
-            'booked_seats'    => (int) $bookedSeats,
-            'available_seats' => $availableSeats,
-            'is_available'    => $availableSeats > 0,
+            'schedule_id'     => $scheduleId,
+            'route_id'        => $schedule->route_id,
+            'train'           => $schedule->train->name,
+            'departure_time'  => $schedule->departure_time,
+            'arrival_time'    => $schedule->arrival_time,
+            'total_seats'     => $schedule->total_seats,
+            'booked_seats'    => $bookedSeats,
+            'available_seats' => $schedule->available_seats,
+            'is_available'    => $schedule->available_seats > 0,
         ];
     }
 }
