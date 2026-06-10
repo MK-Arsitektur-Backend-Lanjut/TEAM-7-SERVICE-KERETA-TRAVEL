@@ -1,0 +1,146 @@
+{
+	"info": {
+		"_postman_id": "0622d978-dca3-4f71-81a8-2cc360ae1ca1",
+		"name": "Team 7 - Kereta Travel API",
+		"description": "Koleksi API untuk Service Kereta Travel Team 7 (Module 1)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Trains",
+			"item": [
+				{
+					"name": "List All Trains",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "http://localhost/api/v1/trains"
+					}
+				},
+				{
+					"name": "Create Train",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Argo Bromo Anggrek\",\n    \"code\": \"ABA-02\",\n    \"type\": \"eksekutif\",\n    \"total_seats\": 450\n}"
+						},
+						"url": "http://localhost/api/v1/trains"
+					}
+				},
+				{
+					"name": "Get Train Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "http://localhost/api/v1/trains/1"
+					}
+				}
+			]
+		},
+		{
+			"name": "Stations",
+			"item": [
+				{
+					"name": "List All Stations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "http://localhost/api/v1/stations"
+					}
+				},
+				{
+					"name": "Get Station Routes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "http://localhost/api/v1/stations/1/routes"
+					}
+				}
+			]
+		},
+		{
+			"name": "Routes",
+			"item": [
+				{
+					"name": "List All Routes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "http://localhost/api/v1/routes"
+					}
+				},
+				{
+					"name": "Estimate Travel Time",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/api/v1/routes/estimate-time?origin_id=1&destination_id=2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"v1",
+								"routes",
+								"estimate-time"
+							],
+							"query": [
+								{
+									"key": "origin_id",
+									"value": "1"
+								},
+								{
+									"key": "destination_id",
+									"value": "2"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

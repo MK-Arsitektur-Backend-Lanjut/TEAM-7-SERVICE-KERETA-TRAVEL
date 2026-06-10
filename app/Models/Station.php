@@ -6,25 +6,30 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Train extends Model
+class Station extends Model
 {
     use HasFactory;
     protected $fillable = [
         'name',
         'code',
-        'type',
-        'total_seats',
+        'city',
+        'province',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'total_seats' => 'integer',
     ];
 
     /** @return HasMany<Route, $this> */
-    public function routes(): HasMany
+    public function departingRoutes(): HasMany
     {
-        return $this->hasMany(Route::class);
+        return $this->hasMany(Route::class, 'origin_station_id');
+    }
+
+    /** @return HasMany<Route, $this> */
+    public function arrivingRoutes(): HasMany
+    {
+        return $this->hasMany(Route::class, 'destination_station_id');
     }
 }

@@ -1,0 +1,239 @@
+{
+  "info": {
+    "_postman_id": "team7-modul2-schedule",
+    "name": "Modul 2 - Search & Schedule",
+    "description": "Collection untuk testing Modul 2: API Pencarian Jadwal, filter keberangkatan, dan pengecekan ketersediaan kursi.\n\n**Base URL:** http://localhost\n**Prefix:** /api/v1/schedules\n\n**Cara pakai:**\n1. Import file ini\n2. Import `Postman_Environment.json` sebagai environment\n3. Tidak perlu login — endpoint ini publik",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Cari Jadwal - Tanpa Filter",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/schedules",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "schedules"]
+        },
+        "description": "Ambil semua jadwal aktif (terpaginasi, default 15 per halaman, urut departure_time asc)."
+      }
+    },
+    {
+      "name": "2. Cari Jadwal - by Tanggal",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/schedules?date=2026-05-01",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "schedules"],
+          "query": [
+            { "key": "date", "value": "2026-05-01", "description": "Format: Y-m-d" }
+          ]
+        },
+        "description": "Filter jadwal berdasarkan tanggal keberangkatan."
+      }
+    },
+    {
+      "name": "3. Cari Jadwal - by Stasiun Asal & Tujuan",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/schedules?origin_station_id=1&destination_station_id=5",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "schedules"],
+          "query": [
+            { "key": "origin_station_id", "value": "1", "description": "ID stasiun asal (lihat tabel stations)" },
+            { "key": "destination_station_id", "value": "5", "description": "ID stasiun tujuan (lihat tabel stations)" }
+          ]
+        },
+        "description": "Filter jadwal berdasarkan stasiun asal dan tujuan."
+      }
+    },
+    {
+      "name": "4. Cari Jadwal - by Jam Keberangkatan (Pagi)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/schedules?time_from=06:00&time_to=12:00",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "schedules"],
+          "query": [
+            { "key": "time_from", "value": "06:00", "description": "Jam mulai keberangkatan (H:i)" },
+            { "key": "time_to", "value": "12:00", "description": "Jam akhir keberangkatan (H:i)" }
+          ]
+        },
+        "description": "Filter jadwal keberangkatan antara jam 06:00 - 12:00 (sesi pagi)."
+      }
+    },
+    {
+      "name": "5. Cari Jadwal - by Tipe Kereta",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/schedules?train_type=eksekutif",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "schedules"],
+          "query": [
+            { "key": "train_type", "value": "eksekutif", "description": "Nilai: ekonomi | bisnis | eksekutif" }
+          ]
+        },
+        "description": "Filter jadwal berdasarkan tipe kereta (ekonomi / bisnis / eksekutif)."
+      }
+    },
+    {
+      "name": "6. Cari Jadwal - by Harga Maksimum",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/schedules?max_price=200000",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "schedules"],
+          "query": [
+            { "key": "max_price", "value": "200000", "description": "Harga tiket maksimum (dalam Rupiah)" }
+          ]
+        },
+        "description": "Filter jadwal dengan harga tiket di bawah atau sama dengan nilai yang ditentukan."
+      }
+    },
+    {
+      "name": "7. Cari Jadwal - Hanya Ada Kursi",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/schedules?only_available=true",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "schedules"],
+          "query": [
+            { "key": "only_available", "value": "true", "description": "true = hanya tampilkan jadwal yang masih ada kursi kosong" }
+          ]
+        },
+        "description": "Filter jadwal yang masih memiliki kursi tersedia (total_seats > jumlah booking aktif)."
+      }
+    },
+    {
+      "name": "8. Cari Jadwal - Urut Termurah",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/schedules?sort_by=price&sort_dir=asc",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "schedules"],
+          "query": [
+            { "key": "sort_by", "value": "price", "description": "departure_time | price | duration_minutes" },
+            { "key": "sort_dir", "value": "asc", "description": "asc | desc" }
+          ]
+        },
+        "description": "Tampilkan semua jadwal diurutkan dari harga termurah."
+      }
+    },
+    {
+      "name": "9. Cari Jadwal - Urut Tercepat",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/schedules?sort_by=duration_minutes&sort_dir=asc",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "schedules"],
+          "query": [
+            { "key": "sort_by", "value": "duration_minutes" },
+            { "key": "sort_dir", "value": "asc" }
+          ]
+        },
+        "description": "Tampilkan jadwal diurutkan dari durasi perjalanan terpendek."
+      }
+    },
+    {
+      "name": "10. Cari Jadwal - Kombinasi Lengkap",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/schedules?origin_station_id=1&destination_station_id=5&date=2026-05-01&time_from=06:00&time_to=20:00&train_type=eksekutif&max_price=500000&only_available=true&sort_by=price&sort_dir=asc&per_page=10",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "schedules"],
+          "query": [
+            { "key": "origin_station_id", "value": "1" },
+            { "key": "destination_station_id", "value": "5" },
+            { "key": "date", "value": "2026-05-01" },
+            { "key": "time_from", "value": "06:00" },
+            { "key": "time_to", "value": "20:00" },
+            { "key": "train_type", "value": "eksekutif" },
+            { "key": "max_price", "value": "500000" },
+            { "key": "only_available", "value": "true" },
+            { "key": "sort_by", "value": "price" },
+            { "key": "sort_dir", "value": "asc" },
+            { "key": "per_page", "value": "10" }
+          ]
+        },
+        "description": "Contoh pencarian lengkap dengan semua filter aktif sekaligus."
+      }
+    },
+    {
+      "name": "11. Cek Ketersediaan Kursi",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/schedules/1/seats",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "schedules", "1", "seats"]
+        },
+        "description": "Cek detail ketersediaan kursi untuk jadwal (route) dengan ID tertentu.\n\nResponse berisi:\n- total_seats: kapasitas kereta\n- booked_seats: sudah dipesan (pending + confirmed)\n- available_seats: sisa kursi\n- is_available: true/false"
+      }
+    },
+    {
+      "name": "12. [Error Case] Validasi Gagal - Format Tanggal Salah",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/schedules?date=01-05-2026",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "schedules"],
+          "query": [
+            { "key": "date", "value": "01-05-2026", "description": "Sengaja salah format — harus Y-m-d" }
+          ]
+        },
+        "description": "Ekspektasi: 422 Unprocessable Content karena format date bukan Y-m-d."
+      }
+    },
+    {
+      "name": "13. [Error Case] Validasi Gagal - train_type Tidak Valid",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/schedules?train_type=vip",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "schedules"],
+          "query": [
+            { "key": "train_type", "value": "vip", "description": "Sengaja salah — hanya ekonomi/bisnis/eksekutif" }
+          ]
+        },
+        "description": "Ekspektasi: 422 Unprocessable Content karena train_type 'vip' tidak ada dalam daftar yang diizinkan."
+      }
+    },
+    {
+      "name": "14. [Error Case] Kursi - ID Tidak Ditemukan",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/schedules/999999/seats",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "schedules", "999999", "seats"]
+        },
+        "description": "Ekspektasi: 404 Not Found karena route ID 999999 tidak ada."
+      }
+    }
+  ]
+}
