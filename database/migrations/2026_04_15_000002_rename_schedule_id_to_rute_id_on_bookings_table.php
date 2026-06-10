@@ -30,6 +30,11 @@ return new class extends Migration
 
             // Drop old columns
             Schema::table('bookings', function (Blueprint $table) {
+                // Drop index first before dropping column
+                if (Schema::hasIndex('bookings', 'bookings_user_id_schedule_id_index')) {
+                    $table->dropIndex('bookings_user_id_schedule_id_index');
+                }
+                
                 $table->dropColumn('schedule_id');
 
                 if (Schema::hasColumn('bookings', 'origin')) {

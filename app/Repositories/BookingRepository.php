@@ -12,8 +12,9 @@ class BookingRepository implements BookingRepositoryInterface
     public function listForUser(int $userId, int $perPage = 15): LengthAwarePaginator
     {
         return Booking::query()
+            ->select(['id', 'user_id', 'booking_code', 'rute_id', 'total_price', 'status', 'created_at'])
             ->where('user_id', $userId)
-            ->with('rute')  // Eager load rute data
+            ->with('rute:id,origin_station_id,destination_station_id,departure_time')
             ->orderByDesc('id')
             ->paginate($perPage);
     }
