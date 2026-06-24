@@ -37,6 +37,10 @@ class Schedule extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $appends = [
+        'is_available',
+    ];
+
     /** @return BelongsTo<Route, $this> */
     public function route(): BelongsTo
     {
@@ -65,6 +69,11 @@ class Schedule extends Model
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
+    }
+
+    public function getIsAvailableAttribute(): bool
+    {
+        return $this->available_seats > 0;
     }
 
     /**
