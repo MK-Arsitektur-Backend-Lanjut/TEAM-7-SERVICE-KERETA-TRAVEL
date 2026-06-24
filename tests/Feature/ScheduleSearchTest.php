@@ -29,13 +29,14 @@ class ScheduleSearchTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->getJson('/api/v1/schedules?' . http_build_query([
+        $response = $this->getJson('/api/v1/schedules?'.http_build_query([
             'origin_station_id' => $origin->id,
             'destination_station_id' => $destination->id,
         ]));
 
         $response->assertOk();
         $response->assertJsonCount(1, 'data');
+        $response->assertJsonPath('data.0.is_available', true);
     }
 
     public function test_can_filter_schedules_by_train_type(): void
@@ -86,6 +87,18 @@ class ScheduleSearchTest extends TestCase
         Schedule::factory()->count(10)->create(['is_active' => true]);
 
         $response = $this->getJson('/api/v1/schedules?per_page=5');
+
+        $response->assertOk();
+        $response->assertJsonCount(5, 'data');
+        $response->assertJsonMissingPath('total');
+    }
+
+    public function test_can_paginate_schedules_with_total_when_requested(): void
+    {
+
+        Schedule::factory()->count(10)->create(['is_active' => true]);
+
+        $response = $this->getJson('/api/v1/schedules?per_page=5&with_total=true');
 
         $response->assertOk();
         $response->assertJsonCount(5, 'data');

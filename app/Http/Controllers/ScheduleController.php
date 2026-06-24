@@ -23,21 +23,23 @@ class ScheduleController extends Controller
      *   - date                   (string) format Y-m-d, contoh: 2026-05-01
      *   - max_price              (float)  harga tiket maksimum
      *   - per_page               (int)    jumlah per halaman (default 15, maks 100)
+     *   - with_total             (bool)   sertakan total data jika diperlukan
      */
     public function index(Request $request): JsonResponse
     {
         $request->validate([
-            'origin_station_id'      => ['sometimes', 'integer', 'exists:stations,id'],
-            'destination_station_id' => ['sometimes', 'integer', 'exists:stations,id', 'different:origin_station_id'],
-            'date'                   => ['sometimes', 'date_format:Y-m-d'],
-            'time_from'              => ['sometimes', 'date_format:H:i'],
-            'time_to'                => ['sometimes', 'date_format:H:i', 'after:time_from'],
-            'train_type'             => ['sometimes', 'string', 'in:ekonomi,bisnis,eksekutif'],
-            'max_price'              => ['sometimes', 'numeric', 'min:0'],
-            'only_available'         => ['sometimes', 'nullable', 'in:true,false,1,0'],
-            'sort_by'                => ['sometimes', 'string', 'in:departure_time,price,duration_minutes'],
-            'sort_dir'               => ['sometimes', 'string', 'in:asc,desc'],
-            'per_page'               => ['sometimes', 'integer', 'min:1', 'max:100'],
+            'origin_station_id' => ['sometimes', 'integer'],
+            'destination_station_id' => ['sometimes', 'integer', 'different:origin_station_id'],
+            'date' => ['sometimes', 'date_format:Y-m-d'],
+            'time_from' => ['sometimes', 'date_format:H:i'],
+            'time_to' => ['sometimes', 'date_format:H:i', 'after:time_from'],
+            'train_type' => ['sometimes', 'string', 'in:ekonomi,bisnis,eksekutif'],
+            'max_price' => ['sometimes', 'numeric', 'min:0'],
+            'only_available' => ['sometimes', 'nullable', 'in:true,false,1,0'],
+            'sort_by' => ['sometimes', 'string', 'in:departure_time,price,duration_minutes'],
+            'sort_dir' => ['sometimes', 'string', 'in:asc,desc'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+            'with_total' => ['sometimes', 'nullable', 'in:true,false,1,0'],
         ]);
 
         $results = $this->schedules->search($request->only([
@@ -52,6 +54,7 @@ class ScheduleController extends Controller
             'sort_by',
             'sort_dir',
             'per_page',
+            'with_total',
         ]));
 
         return response()->json($results);

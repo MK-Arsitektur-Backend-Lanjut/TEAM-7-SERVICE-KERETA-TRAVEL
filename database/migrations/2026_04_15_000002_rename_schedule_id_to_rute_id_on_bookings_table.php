@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -30,6 +30,15 @@ return new class extends Migration
 
             // Drop old columns
             Schema::table('bookings', function (Blueprint $table) {
+                if (! Schema::hasIndex('bookings', 'bookings_user_id_index')) {
+                    $table->index('user_id');
+                }
+
+                // Drop index first before dropping column
+                if (Schema::hasIndex('bookings', 'bookings_user_id_schedule_id_index')) {
+                    $table->dropIndex('bookings_user_id_schedule_id_index');
+                }
+
                 $table->dropColumn('schedule_id');
 
                 if (Schema::hasColumn('bookings', 'origin')) {

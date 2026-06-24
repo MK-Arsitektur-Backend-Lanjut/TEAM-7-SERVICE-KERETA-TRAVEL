@@ -16,7 +16,7 @@ class TrainController extends Controller
 
         return response()->json([
             'data' => $trains,
-        ]);
+        ])->header('Cache-Control', 'public, max-age=60');
     }
 
     public function store(Request $request): JsonResponse

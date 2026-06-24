@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             TrainSeeder::class,
             StationSeeder::class,
             RouteSeeder::class,
+            ScheduleSeeder::class,
         ]);
     }
 }

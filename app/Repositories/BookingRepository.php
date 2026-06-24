@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\BookingRepositoryInterface;
 use App\Models\Booking;
+use App\Models\Route;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 
@@ -12,8 +13,9 @@ class BookingRepository implements BookingRepositoryInterface
     public function listForUser(int $userId, int $perPage = 15): LengthAwarePaginator
     {
         return Booking::query()
+            ->select(['id', 'user_id', 'booking_code', 'rute_id', 'total_price', 'status', 'created_at'])
             ->where('user_id', $userId)
-            ->with('rute')  // Eager load rute data
+            ->with('rute:id,origin_station_id,destination_station_id,departure_time')
             ->orderByDesc('id')
             ->paginate($perPage);
     }
@@ -21,9 +23,9 @@ class BookingRepository implements BookingRepositoryInterface
     public function createForUser(int $userId, array $data): Booking
     {
         $passengers = (int) ($data['passengers'] ?? 1);
-        
+
         // Get route to retrieve price automatically
-        $route = \App\Models\Route::find($data['rute_id']);
+        $route = Route::find($data['rute_id']);
         $price = (int) ($route?->price ?? 0);
         $totalPrice = $price * $passengers;
 
@@ -54,13 +56,13 @@ class BookingRepository implements BookingRepositoryInterface
     private function generateBookingCode(): string
     {
         for ($attempt = 0; $attempt < 5; $attempt++) {
-            $code = 'BK-' . Str::upper(Str::random(8));
+            $code = 'BK-'.Str::upper(Str::random(8));
 
             if (! Booking::query()->where('booking_code', $code)->exists()) {
                 return $code;
             }
         }
 
-        return 'BK-' . Str::uuid()->toString();
+        return 'BK-'.Str::uuid()->toString();
     }
 }
