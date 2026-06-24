@@ -2,12 +2,20 @@
 	"info": {
 		"_postman_id": "0622d978-dca3-4f71-81a8-2cc360ae1ca1",
 		"name": "Team 7 - Kereta Travel API",
-		"description": "Koleksi API untuk Service Kereta Travel Team 7 (Module 1)",
+		"description": "Koleksi lengkap API untuk Service Kereta Travel Team 7 — Module 1 (Train, Station, Route). Mencakup semua CRUD endpoint beserta fitur filter dan estimasi waktu tempuh.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost/api/v1",
+			"type": "string"
+		}
+	],
 	"item": [
 		{
 			"name": "Trains",
+			"description": "CRUD endpoints untuk data kereta api.",
 			"item": [
 				{
 					"name": "List All Trains",
@@ -19,7 +27,20 @@
 								"value": "application/json"
 							}
 						],
-						"url": "http://localhost/api/v1/trains"
+						"url": "{{baseUrl}}/trains"
+					}
+				},
+				{
+					"name": "Get Train Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/trains/1"
 					}
 				},
 				{
@@ -40,26 +61,48 @@
 							"mode": "raw",
 							"raw": "{\n    \"name\": \"Argo Bromo Anggrek\",\n    \"code\": \"ABA-02\",\n    \"type\": \"eksekutif\",\n    \"total_seats\": 450\n}"
 						},
-						"url": "http://localhost/api/v1/trains"
+						"url": "{{baseUrl}}/trains"
 					}
 				},
 				{
-					"name": "Get Train Detail",
+					"name": "Update Train",
 					"request": {
-						"method": "GET",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Argo Bromo Anggrek Updated\",\n    \"type\": \"bisnis\",\n    \"total_seats\": 500\n}"
+						},
+						"url": "{{baseUrl}}/trains/1"
+					}
+				},
+				{
+					"name": "Delete Train",
+					"request": {
+						"method": "DELETE",
 						"header": [
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
 						],
-						"url": "http://localhost/api/v1/trains/1"
+						"url": "{{baseUrl}}/trains/1"
 					}
 				}
 			]
 		},
 		{
 			"name": "Stations",
+			"description": "CRUD endpoints untuk data stasiun kereta.",
 			"item": [
 				{
 					"name": "List All Stations",
@@ -71,7 +114,121 @@
 								"value": "application/json"
 							}
 						],
-						"url": "http://localhost/api/v1/stations"
+						"url": "{{baseUrl}}/stations"
+					}
+				},
+				{
+					"name": "Filter Stations by City",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/stations?city=Jakarta",
+							"host": ["{{baseUrl}}"],
+							"path": ["stations"],
+							"query": [
+								{
+									"key": "city",
+									"value": "Jakarta"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Filter Stations by Province",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/stations?province=Jawa Barat",
+							"host": ["{{baseUrl}}"],
+							"path": ["stations"],
+							"query": [
+								{
+									"key": "province",
+									"value": "Jawa Barat"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Station Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/stations/1"
+					}
+				},
+				{
+					"name": "Create Station",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Stasiun Gambir\",\n    \"code\": \"GMR\",\n    \"city\": \"Jakarta Pusat\",\n    \"province\": \"DKI Jakarta\",\n    \"is_active\": true\n}"
+						},
+						"url": "{{baseUrl}}/stations"
+					}
+				},
+				{
+					"name": "Update Station",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Stasiun Gambir Updated\",\n    \"city\": \"Jakarta Pusat\",\n    \"is_active\": false\n}"
+						},
+						"url": "{{baseUrl}}/stations/1"
+					}
+				},
+				{
+					"name": "Delete Station",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/stations/1"
 					}
 				},
 				{
@@ -84,13 +241,14 @@
 								"value": "application/json"
 							}
 						],
-						"url": "http://localhost/api/v1/stations/1/routes"
+						"url": "{{baseUrl}}/stations/1/routes"
 					}
 				}
 			]
 		},
 		{
 			"name": "Routes",
+			"description": "CRUD endpoints untuk data rute perjalanan kereta, termasuk filter dan estimasi waktu tempuh.",
 			"item": [
 				{
 					"name": "List All Routes",
@@ -102,7 +260,190 @@
 								"value": "application/json"
 							}
 						],
-						"url": "http://localhost/api/v1/routes"
+						"url": "{{baseUrl}}/routes"
+					}
+				},
+				{
+					"name": "Filter Routes by Origin Station",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/routes?origin_station_id=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["routes"],
+							"query": [
+								{
+									"key": "origin_station_id",
+									"value": "1"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Filter Routes by Destination Station",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/routes?destination_station_id=2",
+							"host": ["{{baseUrl}}"],
+							"path": ["routes"],
+							"query": [
+								{
+									"key": "destination_station_id",
+									"value": "2"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Filter Routes by Train",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/routes?train_id=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["routes"],
+							"query": [
+								{
+									"key": "train_id",
+									"value": "1"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Filter Routes by Max Price",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/routes?max_price=200000",
+							"host": ["{{baseUrl}}"],
+							"path": ["routes"],
+							"query": [
+								{
+									"key": "max_price",
+									"value": "200000"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Filter Routes (Active Only)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/routes?is_active=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["routes"],
+							"query": [
+								{
+									"key": "is_active",
+									"value": "1"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Route Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/routes/1"
+					}
+				},
+				{
+					"name": "Create Route",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"train_id\": 1,\n    \"origin_station_id\": 1,\n    \"destination_station_id\": 2,\n    \"departure_time\": \"2026-05-01 08:00:00\",\n    \"arrival_time\": \"2026-05-01 14:30:00\",\n    \"duration_minutes\": 390,\n    \"distance_km\": 450.5,\n    \"price\": 350000,\n    \"is_active\": true\n}"
+						},
+						"url": "{{baseUrl}}/routes"
+					}
+				},
+				{
+					"name": "Update Route",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"price\": 400000,\n    \"duration_minutes\": 360,\n    \"is_active\": false\n}"
+						},
+						"url": "{{baseUrl}}/routes/1"
+					}
+				},
+				{
+					"name": "Delete Route",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/routes/1"
 					}
 				},
 				{
@@ -116,17 +457,9 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost/api/v1/routes/estimate-time?origin_id=1&destination_id=2",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"path": [
-								"api",
-								"v1",
-								"routes",
-								"estimate-time"
-							],
+							"raw": "{{baseUrl}}/routes/estimate-time?origin_id=1&destination_id=2",
+							"host": ["{{baseUrl}}"],
+							"path": ["routes", "estimate-time"],
 							"query": [
 								{
 									"key": "origin_id",

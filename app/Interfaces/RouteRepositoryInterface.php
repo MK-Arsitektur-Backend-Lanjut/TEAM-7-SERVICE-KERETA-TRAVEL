@@ -29,8 +29,8 @@ interface RouteRepositoryInterface
     public function deleteRoute(int $id): bool;
 
     /**
-     * Estimasi waktu tempuh antara dua stasiun (dalam menit).
-     * Mengembalikan null jika tidak ada rute yang menghubungkan kedua stasiun.
+     * Estimasi waktu tempuh antara dua stasiun.
+     * Mengembalikan model Route atau null jika tidak ada rute yang menghubungkan kedua stasiun.
      */
-    public function estimateTravelTime(int $originId, int $destinationId): ?int;
+    public function estimateTravelTime(int $originId, int $destinationId): ?Route;
 }

@@ -20,11 +20,28 @@ class RouteController extends Controller
             'max_price',
         ]);
 
+        $cacheKey = 'routes_json:v4:' . md5(serialize($filters));
+
+        // Ambil raw JSON langsung dari Redis (sangat cepat, bypass Eloquent dan json_encode)
+        $cachedJson = \Illuminate\Support\Facades\Redis::get($cacheKey);
+        if ($cachedJson !== null) {
+            return new \Illuminate\Http\JsonResponse($cachedJson, 200, [
+                'Content-Type' => 'application/json',
+                'Cache-Control' => 'public, max-age=60',
+            ], 0, true);
+        }
+
         $routes = $this->routeRepository->getAllRoutes($filters);
 
-        return response()->json([
-            'data' => $routes,
-        ]);
+        $jsonResponse = json_encode(['data' => $routes]);
+
+        // Simpan raw JSON string langsung ke Redis dengan TTL 5 menit (300 detik)
+        \Illuminate\Support\Facades\Redis::setex($cacheKey, 300, $jsonResponse);
+
+        return new \Illuminate\Http\JsonResponse($jsonResponse, 200, [
+            'Content-Type' => 'application/json',
+            'Cache-Control' => 'public, max-age=60',
+        ], 0, true);
     }
 
     public function store(Request $request): JsonResponse
@@ -96,34 +113,64 @@ class RouteController extends Controller
     public function estimateTime(Request $request): JsonResponse
     {
         $request->validate([
-            'origin_id' => ['required', 'integer', 'exists:stations,id'],
-            'destination_id' => ['required', 'integer', 'exists:stations,id', 'different:origin_id'],
+            'origin_id' => ['required', 'integer'],
+            'destination_id' => ['required', 'integer', 'different:origin_id'],
         ]);
 
-        $durationMinutes = $this->routeRepository->estimateTravelTime(
-            (int) $request->query('origin_id'),
-            (int) $request->query('destination_id'),
-        );
+        $originId = (int) $request->query('origin_id');
+        $destinationId = (int) $request->query('destination_id');
 
-        if ($durationMinutes === null) {
+        // Gunakan cache untuk mengecek apakah stasiun ada agar tidak hit DB terus-menerus
+        $originExists = \Illuminate\Support\Facades\Cache::remember("station_exists:{$originId}", 3600, function () use ($originId) {
+            return \App\Models\Station::where('id', $originId)->exists();
+        });
+        $destExists = \Illuminate\Support\Facades\Cache::remember("station_exists:{$destinationId}", 3600, function () use ($destinationId) {
+            return \App\Models\Station::where('id', $destinationId)->exists();
+        });
+
+        if (!$originExists || !$destExists) {
+            $errors = [];
+            if (!$originExists) {
+                $errors['origin_id'] = ['The selected origin id is invalid.'];
+            }
+            if (!$destExists) {
+                $errors['destination_id'] = ['The selected destination id is invalid.'];
+            }
+            return response()->json([
+                'message' => 'The selected station is invalid.',
+                'errors' => $errors
+            ], 422);
+        }
+
+        $route = $this->routeRepository->estimateTravelTime($originId, $destinationId);
+
+        if ($route === null) {
             return response()->json([
                 'message' => 'Tidak ada rute aktif yang menghubungkan kedua stasiun tersebut.',
                 'data' => null,
             ], 404);
         }
 
+        $durationMinutes = $route->duration_minutes;
         $hours = intdiv($durationMinutes, 60);
         $minutes = $durationMinutes % 60;
 
         return response()->json([
             'data' => [
-                'origin_station_id' => (int) $request->query('origin_id'),
-                'destination_station_id' => (int) $request->query('destination_id'),
+                'origin' => [
+                    'code' => $route->originStation->code,
+                    'name' => $route->originStation->name,
+                ],
+                'destination' => [
+                    'code' => $route->destinationStation->code,
+                    'name' => $route->destinationStation->name,
+                ],
+                'distance_km' => (float) $route->distance_km,
                 'duration_minutes' => $durationMinutes,
                 'duration_formatted' => $hours > 0
                     ? "{$hours} jam {$minutes} menit"
                     : "{$minutes} menit",
             ],
-        ]);
+        ])->header('Cache-Control', 'public, max-age=300');
     }
 }
